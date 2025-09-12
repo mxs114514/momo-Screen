@@ -19,6 +19,36 @@ const routes: Array<RouteRecordRaw> = [
         path: '/index',
         name: 'index',
         component: () => import('@/views/index/index.vue'),
+      },
+      {
+        path: '/analysis',
+        name: 'analysis',
+        component: () => import('@/views/analysis/index.vue'),
+      },
+      {
+        path: '/trend',
+        name: 'trend',
+        component: () => import('@/views/trend/index.vue'),
+      },
+      {
+        path: '/supervision',
+        name: 'supervision',
+        component: () => import('@/views/supervision/index.vue'),
+      },
+      {
+        path: '/environmental',
+        name: 'environmental',
+        component: () => import('@/views/environmental/index.vue'),
+      },
+      {
+        path: '/policy',
+        name: 'policy',
+        component: () => import('@/views/policy/index.vue'),
+      },
+      {
+        path: '/report',
+        name: 'report',
+        component: () => import('@/views/report/index.vue'),
       }
     ]
   },
