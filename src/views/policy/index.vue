@@ -3,10 +3,10 @@ import { ref, onMounted } from "vue";
 import ItemWrap from "@/components/item-wrap";
 
 // 页面数据
-const pageTitle = ref("政策法规");
+const pageTitle = ref("追溯码");
 
 onMounted(() => {
-  console.log("政策法规页面已加载");
+  console.log("追溯码页面已加载");
 });
 </script>
 
@@ -15,11 +15,11 @@ onMounted(() => {
     <div class="page-header">
       <h2 class="page-title">{{ pageTitle }}</h2>
     </div>
-    
+
     <div class="content-area">
-      <ItemWrap title="政策法规">
+      <ItemWrap title="追溯码">
         <div class="placeholder-content">
-          <p>政策法规内容待完善...</p>
+          <p>追溯码内容待完善...</p>
         </div>
       </ItemWrap>
     </div>
@@ -36,7 +36,7 @@ onMounted(() => {
 
 .page-header {
   margin-bottom: 24px;
-  
+
   .page-title {
     color: #00eaff;
     font-size: 24px;

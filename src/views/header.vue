@@ -23,9 +23,9 @@ const navItems = ref([
   { name: "能源行业综合分析", path: "/analysis" },
   { name: "能源行业趋势", path: "/trend" },
   { name: "能源区域分析", path: "/supervision" },
-  { name: "环保监测", path: "/environmental" },
-  { name: "政策法规", path: "/policy" },
-  { name: "数据报告", path: "/report" },
+  { name: "供应链列表", path: "/environmental" },
+  { name: "追溯码", path: "/policy" },
+  { name: "采购订单", path: "/report" },
 ]);
 
 // 导航栏展开状态
