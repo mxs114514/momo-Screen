@@ -272,14 +272,15 @@ timeFn();
 
   // 中间标题容器
   .title-container {
-    margin: 0 auto;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
   }
 
   .title {
+    margin: 0 auto;
     position: relative;
     text-align: center;
     background-size: cover;
@@ -288,6 +289,7 @@ timeFn();
     line-height: 46px;
 
     .title-text {
+      text-align: center;
       font-size: 38px;
       font-weight: 900;
       letter-spacing: 6px;
@@ -305,11 +307,15 @@ timeFn();
 
   // 右侧时间样式
   .timers {
-    flex: 0 0 auto;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 18px;
     display: flex;
     align-items: center;
     color: rgba(255, 255, 255, 0.9);
+    z-index: 5;
 
     .setting_icon {
       width: 20px;

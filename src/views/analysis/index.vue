@@ -389,15 +389,15 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 16px;
+  gap: 8px;
   height: 100%;
 }
 
 .data-item {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(147, 235, 248, 0.3);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 6px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -412,17 +412,17 @@ onMounted(() => {
 
   .data-label {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 12px;
+    margin-bottom: 4px;
   }
 
   .data-value {
     color: #00eaff;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     
     .data-unit {
-      font-size: 14px;
+      font-size: 12px;
       color: rgba(255, 255, 255, 0.6);
       margin-left: 4px;
     }
