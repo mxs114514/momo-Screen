@@ -21,8 +21,8 @@ const weekday = ["周日", "周一", "周二", "周三", "周四", "周五", "�
 const navItems = ref([
   { name: "首页", path: "/index" },
   { name: "能源行业综合分析", path: "/analysis" },
-  { name: "能源发展趋势", path: "/trend" },
-  { name: "能源项目监管", path: "/supervision" },
+  { name: "能源行业趋势", path: "/trend" },
+  { name: "能源区域分析", path: "/supervision" },
   { name: "环保监测", path: "/environmental" },
   { name: "政策法规", path: "/policy" },
   { name: "数据报告", path: "/report" },

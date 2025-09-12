@@ -40,6 +40,7 @@ $item_title_content-height: calc(100% - 38px);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 8px;
 
   .zuo,
   .you {
