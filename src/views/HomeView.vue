@@ -7,10 +7,49 @@ import Setting from "./setting.vue";
 import { useSettingStore } from "@/stores/index";
 import { storeToRefs } from "pinia";
 import MessageContent from "@/components/Plugins/MessageContent";
+import FloatingBall from "@/components/FloatingBall/index.vue";
+import ChatWindow from "@/components/ChatWindow/index.vue";
 
 const settingStore = useSettingStore();
 const { isScale } = storeToRefs(settingStore);
 const wrapperStyle = {};
+
+// 聊天窗口状态
+const chatWindowVisible = ref(false);
+const floatingBallPosition = ref({ x: 0, y: 0 });
+const chatWindowSide = ref<'left' | 'right'>('right');
+
+// 悬浮球点击处理
+const handleFloatingBallClick = (position: { x: number; y: number }) => {
+  floatingBallPosition.value = position;
+  
+  // 根据悬浮球位置决定聊天窗口显示在哪一侧
+  const screenWidth = window.innerWidth;
+  chatWindowSide.value = position.x < screenWidth / 2 ? 'left' : 'right';
+  
+  chatWindowVisible.value = true;
+};
+
+// 悬浮球位置变化处理
+const handleFloatingBallPositionChange = (position: { x: number; y: number }) => {
+  floatingBallPosition.value = position;
+  
+  // 如果聊天窗口打开，更新侧边
+  if (chatWindowVisible.value) {
+    const screenWidth = window.innerWidth;
+    chatWindowSide.value = position.x < screenWidth / 2 ? 'left' : 'right';
+  }
+};
+
+// 聊天窗口关闭处理
+const handleChatWindowClose = () => {
+  chatWindowVisible.value = false;
+};
+
+// 聊天窗口最小化处理
+const handleChatWindowMinimize = () => {
+  chatWindowVisible.value = false;
+};
 </script>
 
 <template>
@@ -32,6 +71,20 @@ const wrapperStyle = {};
       <MessageContent />
     </div>
   </scale-screen>
+  
+  <!-- 悬浮球组件 - 移到ScaleScreen外部以确保fixed定位正常工作 -->
+  <FloatingBall
+    @click="handleFloatingBallClick"
+    @position-change="handleFloatingBallPositionChange"
+  />
+  <!-- AI聊天窗口 -->
+  <ChatWindow
+    :visible="chatWindowVisible"
+    :position="floatingBallPosition"
+    :side="chatWindowSide"
+    @close="handleChatWindowClose"
+    @minimize="handleChatWindowMinimize"
+  />
   <Setting />
 </template>
 <style lang="scss" scoped>

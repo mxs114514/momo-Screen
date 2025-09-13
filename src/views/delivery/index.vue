@@ -5,13 +5,13 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 
 // 页面数据
-const pageTitle = ref("发货单列表");
+const pageTitle = ref("发货单");
 
 // 搜索表单
 const searchForm = reactive({
   keyword: "",
   status: "",
-  dateRange: []
+  dateRange: [],
 });
 
 // 日期快捷选项
@@ -21,7 +21,7 @@ const dateShortcuts = [
     value: () => {
       const today = new Date();
       return [today, today];
-    }
+    },
   },
   {
     text: "近七天",
@@ -30,7 +30,7 @@ const dateShortcuts = [
       const start = new Date();
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
       return [start, end];
-    }
+    },
   },
   {
     text: "近一月",
@@ -39,8 +39,8 @@ const dateShortcuts = [
       const start = new Date();
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
       return [start, end];
-    }
-  }
+    },
+  },
 ];
 
 // 状态选项
@@ -51,7 +51,7 @@ const statusOptions = [
   { label: "运输中", value: "in_transit" },
   { label: "已送达", value: "delivered" },
   { label: "已签收", value: "received" },
-  { label: "异常", value: "exception" }
+  { label: "异常", value: "exception" },
 ];
 
 // 表格数据
@@ -71,7 +71,7 @@ const tableData = ref([
     driverPhone: "13800138001",
     totalAmount: 150000,
     createTime: "2024-01-20 09:30:00",
-    operator: "李四"
+    operator: "李四",
   },
   {
     id: 2,
@@ -88,7 +88,7 @@ const tableData = ref([
     driverPhone: "13800138002",
     totalAmount: 280000,
     createTime: "2024-01-21 10:15:00",
-    operator: "张三"
+    operator: "张三",
   },
   {
     id: 3,
@@ -105,7 +105,7 @@ const tableData = ref([
     driverPhone: "13800138003",
     totalAmount: 120000,
     createTime: "2024-01-22 08:45:00",
-    operator: "王五"
+    operator: "王五",
   },
   {
     id: 4,
@@ -122,7 +122,7 @@ const tableData = ref([
     driverPhone: "",
     totalAmount: 45000,
     createTime: "2024-01-23 14:20:00",
-    operator: "赵六"
+    operator: "赵六",
   },
   {
     id: 5,
@@ -139,8 +139,8 @@ const tableData = ref([
     driverPhone: "13800138004",
     totalAmount: 95000,
     createTime: "2024-01-24 11:30:00",
-    operator: "孙七"
-  }
+    operator: "孙七",
+  },
 ]);
 
 // 原始数据备份
@@ -150,7 +150,7 @@ const originalTableData = ref([...tableData.value]);
 const pagination = reactive({
   currentPage: 1,
   pageSize: 10,
-  total: tableData.value.length
+  total: tableData.value.length,
 });
 
 // 计算分页数据
@@ -162,15 +162,18 @@ const paginatedData = computed(() => {
 
 // 过滤数据
 const filteredData = computed(() => {
-  return originalTableData.value.filter(item => {
-    const matchKeyword = !searchForm.keyword || 
-      item.deliveryNo.toLowerCase().includes(searchForm.keyword.toLowerCase()) ||
+  return originalTableData.value.filter((item) => {
+    const matchKeyword =
+      !searchForm.keyword ||
+      item.deliveryNo
+        .toLowerCase()
+        .includes(searchForm.keyword.toLowerCase()) ||
       item.orderNo.toLowerCase().includes(searchForm.keyword.toLowerCase()) ||
       item.supplier.toLowerCase().includes(searchForm.keyword.toLowerCase()) ||
       item.receiver.toLowerCase().includes(searchForm.keyword.toLowerCase());
-    
+
     const matchStatus = !searchForm.status || item.status === searchForm.status;
-    
+
     let matchDate = true;
     if (searchForm.dateRange && searchForm.dateRange.length === 2) {
       const itemDate = new Date(item.deliveryDate);
@@ -178,7 +181,7 @@ const filteredData = computed(() => {
       const endDate = new Date(searchForm.dateRange[1]);
       matchDate = itemDate >= startDate && itemDate <= endDate;
     }
-    
+
     return matchKeyword && matchStatus && matchDate;
   });
 });
@@ -201,7 +204,7 @@ const addForm = reactive({
   expectedDate: "",
   driver: "",
   driverPhone: "",
-  totalAmount: ""
+  totalAmount: "",
 });
 
 // 表单验证规则
@@ -209,10 +212,16 @@ const rules: FormRules = {
   orderNo: [{ required: true, message: "请输入订单编号", trigger: "blur" }],
   supplier: [{ required: true, message: "请输入供应商", trigger: "blur" }],
   receiver: [{ required: true, message: "请输入收货方", trigger: "blur" }],
-  receiverAddress: [{ required: true, message: "请输入收货地址", trigger: "blur" }],
-  deliveryDate: [{ required: true, message: "请选择发货日期", trigger: "change" }],
-  expectedDate: [{ required: true, message: "请选择预计到达日期", trigger: "change" }],
-  totalAmount: [{ required: true, message: "请输入总金额", trigger: "blur" }]
+  receiverAddress: [
+    { required: true, message: "请输入收货地址", trigger: "blur" },
+  ],
+  deliveryDate: [
+    { required: true, message: "请选择发货日期", trigger: "change" },
+  ],
+  expectedDate: [
+    { required: true, message: "请选择预计到达日期", trigger: "change" },
+  ],
+  totalAmount: [{ required: true, message: "请输入总金额", trigger: "blur" }],
 };
 
 // 获取状态文本
@@ -223,7 +232,7 @@ const getStatusText = (status: string) => {
     in_transit: "运输中",
     delivered: "已送达",
     received: "已签收",
-    exception: "异常"
+    exception: "异常",
   };
   return statusMap[status] || status;
 };
@@ -236,7 +245,7 @@ const getStatusType = (status: string) => {
     in_transit: "primary",
     delivered: "success",
     received: "success",
-    exception: "danger"
+    exception: "danger",
   };
   return typeMap[status] || "info";
 };
@@ -244,14 +253,14 @@ const getStatusType = (status: string) => {
 // 搜索功能
 const handleSearch = () => {
   console.log("搜索条件:", searchForm);
-  
+
   // 更新表格数据为过滤后的数据
   tableData.value = [...filteredData.value];
-  
+
   // 更新分页信息
   pagination.total = filteredData.value.length;
   pagination.currentPage = 1;
-  
+
   const resultCount = filteredData.value.length;
   if (resultCount === 0) {
     ElMessage.warning("未找到符合条件的数据");
@@ -265,21 +274,21 @@ const handleReset = () => {
   searchForm.keyword = "";
   searchForm.status = "";
   searchForm.dateRange = [];
-  
+
   // 恢复原始数据
   tableData.value = [...originalTableData.value];
-  
+
   // 重置分页信息
   pagination.total = originalTableData.value.length;
   pagination.currentPage = 1;
-  
+
   ElMessage.info("搜索条件已重置，显示全部数据");
 };
 
 // 新增操作
 const handleAdd = () => {
   isEditMode.value = false;
-  Object.keys(addForm).forEach(key => {
+  Object.keys(addForm).forEach((key) => {
     (addForm as any)[key] = "";
   });
   formRef.value?.resetFields();
@@ -299,7 +308,7 @@ const handleEdit = (row: any) => {
     expectedDate: row.expectedDate,
     driver: row.driver,
     driverPhone: row.driverPhone,
-    totalAmount: row.totalAmount
+    totalAmount: row.totalAmount,
   });
   dialogVisible.value = true;
 };
@@ -313,16 +322,22 @@ const handleView = (row: any) => {
 // 删除操作
 const handleDelete = async (row: any) => {
   try {
-    await ElMessageBox.confirm(`确定要删除发货单 ${row.deliveryNo} 吗？`, "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
-    
-    const index = tableData.value.findIndex(item => item.id === row.id);
+    await ElMessageBox.confirm(
+      `确定要删除发货单 ${row.deliveryNo} 吗？`,
+      "提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }
+    );
+
+    const index = tableData.value.findIndex((item) => item.id === row.id);
     if (index > -1) {
       tableData.value.splice(index, 1);
-      const originalIndex = originalTableData.value.findIndex(item => item.id === row.id);
+      const originalIndex = originalTableData.value.findIndex(
+        (item) => item.id === row.id
+      );
       if (originalIndex > -1) {
         originalTableData.value.splice(originalIndex, 1);
       }
@@ -337,44 +352,50 @@ const handleDelete = async (row: any) => {
 // 提交表单
 const handleSubmit = async () => {
   if (!formRef.value) return;
-  
+
   await formRef.value.validate((valid) => {
     if (valid) {
       if (isEditMode.value) {
         // 编辑模式
-        const index = tableData.value.findIndex(item => item.id === currentEditItem.value.id);
+        const index = tableData.value.findIndex(
+          (item) => item.id === currentEditItem.value.id
+        );
         if (index > -1) {
           Object.assign(tableData.value[index], {
             ...addForm,
-            totalAmount: Number(addForm.totalAmount)
+            totalAmount: Number(addForm.totalAmount),
           });
-          const originalIndex = originalTableData.value.findIndex(item => item.id === currentEditItem.value.id);
+          const originalIndex = originalTableData.value.findIndex(
+            (item) => item.id === currentEditItem.value.id
+          );
           if (originalIndex > -1) {
             Object.assign(originalTableData.value[originalIndex], {
               ...addForm,
-              totalAmount: Number(addForm.totalAmount)
+              totalAmount: Number(addForm.totalAmount),
             });
           }
-          ElMessage.success('修改成功');
+          ElMessage.success("修改成功");
         }
       } else {
         // 新增模式
-        const newId = Math.max(...tableData.value.map(item => item.id)) + 1;
-        const newDeliveryNo = `DN${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(newId).padStart(3, '0')}`;
+        const newId = Math.max(...tableData.value.map((item) => item.id)) + 1;
+        const newDeliveryNo = `DN${new Date().getFullYear()}${String(
+          new Date().getMonth() + 1
+        ).padStart(2, "0")}${String(newId).padStart(3, "0")}`;
         const newItem = {
           id: newId,
           deliveryNo: newDeliveryNo,
           ...addForm,
           status: "pending",
           trackingNo: "",
-          createTime: new Date().toLocaleString('zh-CN'),
+          createTime: new Date().toLocaleString("zh-CN"),
           operator: "当前用户",
-          totalAmount: Number(addForm.totalAmount)
+          totalAmount: Number(addForm.totalAmount),
         };
         tableData.value.unshift(newItem);
         originalTableData.value.unshift(newItem);
         pagination.total = tableData.value.length;
-        ElMessage.success('新增成功');
+        ElMessage.success("新增成功");
       }
       dialogVisible.value = false;
       formRef.value?.resetFields();
@@ -394,7 +415,7 @@ const handleSizeChange = (size: number) => {
 };
 
 onMounted(() => {
-  console.log("发货单列表页面已加载");
+  console.log("发货单页面已加载");
 });
 </script>
 
@@ -455,9 +476,7 @@ onMounted(() => {
             <el-button type="primary" @click="handleSearch" icon="Search">
               查询
             </el-button>
-            <el-button @click="handleReset" icon="Refresh">
-              重置
-            </el-button>
+            <el-button @click="handleReset" icon="Refresh"> 重置 </el-button>
           </div>
           <div class="action-right">
             <el-button type="success" @click="handleAdd" icon="Plus">
@@ -477,8 +496,16 @@ onMounted(() => {
           <el-table-column prop="orderNo" label="订单编号" min-width="140" />
           <el-table-column prop="supplier" label="供应商" min-width="180" />
           <el-table-column prop="receiver" label="收货方" min-width="150" />
-          <el-table-column prop="deliveryDate" label="发货日期" min-width="120" />
-          <el-table-column prop="expectedDate" label="预计到达" min-width="120" />
+          <el-table-column
+            prop="deliveryDate"
+            label="发货日期"
+            min-width="120"
+          />
+          <el-table-column
+            prop="expectedDate"
+            label="预计到达"
+            min-width="120"
+          />
           <el-table-column prop="status" label="状态" min-width="100">
             <template #default="{ row }">
               <el-tag :type="getStatusType(row.status)">
@@ -500,7 +527,11 @@ onMounted(() => {
                 <el-button type="warning" size="small" @click="handleEdit(row)">
                   编辑
                 </el-button>
-                <el-button type="danger" size="small" @click="handleDelete(row)">
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="handleDelete(row)"
+                >
                   删除
                 </el-button>
               </div>
@@ -540,7 +571,10 @@ onMounted(() => {
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="订单编号" prop="orderNo">
-              <el-input v-model="addForm.orderNo" placeholder="请输入订单编号" />
+              <el-input
+                v-model="addForm.orderNo"
+                placeholder="请输入订单编号"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -549,7 +583,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="收货方" prop="receiver">
@@ -558,15 +592,22 @@ onMounted(() => {
           </el-col>
           <el-col :span="12">
             <el-form-item label="总金额" prop="totalAmount">
-              <el-input v-model="addForm.totalAmount" placeholder="请输入总金额" type="number" />
+              <el-input
+                v-model="addForm.totalAmount"
+                placeholder="请输入总金额"
+                type="number"
+              />
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-form-item label="收货地址" prop="receiverAddress">
-          <el-input v-model="addForm.receiverAddress" placeholder="请输入收货地址" />
+          <el-input
+            v-model="addForm.receiverAddress"
+            placeholder="请输入收货地址"
+          />
         </el-form-item>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="发货日期" prop="deliveryDate">
@@ -589,7 +630,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="司机姓名">
@@ -598,12 +639,15 @@ onMounted(() => {
           </el-col>
           <el-col :span="12">
             <el-form-item label="司机电话">
-              <el-input v-model="addForm.driverPhone" placeholder="请输入司机电话" />
+              <el-input
+                v-model="addForm.driverPhone"
+                placeholder="请输入司机电话"
+              />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -616,23 +660,49 @@ onMounted(() => {
     <el-dialog v-model="detailDialogVisible" title="发货单详情" width="800px">
       <div class="detail-content">
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="发货单号">{{ currentDetail.deliveryNo }}</el-descriptions-item>
-          <el-descriptions-item label="订单编号">{{ currentDetail.orderNo }}</el-descriptions-item>
-          <el-descriptions-item label="供应商">{{ currentDetail.supplier }}</el-descriptions-item>
-          <el-descriptions-item label="收货方">{{ currentDetail.receiver }}</el-descriptions-item>
-          <el-descriptions-item label="发货日期">{{ currentDetail.deliveryDate }}</el-descriptions-item>
-          <el-descriptions-item label="预计到达">{{ currentDetail.expectedDate }}</el-descriptions-item>
+          <el-descriptions-item label="发货单号">{{
+            currentDetail.deliveryNo
+          }}</el-descriptions-item>
+          <el-descriptions-item label="订单编号">{{
+            currentDetail.orderNo
+          }}</el-descriptions-item>
+          <el-descriptions-item label="供应商">{{
+            currentDetail.supplier
+          }}</el-descriptions-item>
+          <el-descriptions-item label="收货方">{{
+            currentDetail.receiver
+          }}</el-descriptions-item>
+          <el-descriptions-item label="发货日期">{{
+            currentDetail.deliveryDate
+          }}</el-descriptions-item>
+          <el-descriptions-item label="预计到达">{{
+            currentDetail.expectedDate
+          }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="getStatusType(currentDetail.status)">
               {{ getStatusText(currentDetail.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="总金额">¥{{ currentDetail.totalAmount?.toLocaleString() }}</el-descriptions-item>
-          <el-descriptions-item label="物流单号">{{ currentDetail.trackingNo || '暂无' }}</el-descriptions-item>
-          <el-descriptions-item label="司机姓名">{{ currentDetail.driver || '暂无' }}</el-descriptions-item>
-          <el-descriptions-item label="司机电话">{{ currentDetail.driverPhone || '暂无' }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ currentDetail.createTime }}</el-descriptions-item>
-          <el-descriptions-item label="收货地址" :span="2">{{ currentDetail.receiverAddress }}</el-descriptions-item>
+          <el-descriptions-item label="总金额"
+            >¥{{
+              currentDetail.totalAmount?.toLocaleString()
+            }}</el-descriptions-item
+          >
+          <el-descriptions-item label="物流单号">{{
+            currentDetail.trackingNo || "暂无"
+          }}</el-descriptions-item>
+          <el-descriptions-item label="司机姓名">{{
+            currentDetail.driver || "暂无"
+          }}</el-descriptions-item>
+          <el-descriptions-item label="司机电话">{{
+            currentDetail.driverPhone || "暂无"
+          }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{
+            currentDetail.createTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="收货地址" :span="2">{{
+            currentDetail.receiverAddress
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
       <template #footer>
@@ -650,7 +720,8 @@ onMounted(() => {
   height: calc(100vh - 64px);
   padding: 32px;
   background: #fafbfc;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
   min-height: 100vh;
 }
 

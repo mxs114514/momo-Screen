@@ -26,7 +26,7 @@ const navItems = ref([
   { name: "供应链列表", path: "/environmental" },
   { name: "追溯码", path: "/policy" },
   { name: "采购订单", path: "/report" },
-  { name: "发货单列表", path: "/delivery" },
+  { name: "发货单", path: "/delivery" },
   { name: "合同", path: "/contract" },
 ]);
 
