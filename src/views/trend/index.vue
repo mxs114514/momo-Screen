@@ -72,11 +72,11 @@ const barChart1Option = ref({
     type: "category",
     data: years,
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
   },
@@ -84,19 +84,19 @@ const barChart1Option = ref({
     type: "value",
     name: "能耗总量（万吨标煤）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -138,11 +138,11 @@ const barChart2Option = ref({
     type: "category",
     data: years,
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
   },
@@ -150,19 +150,19 @@ const barChart2Option = ref({
     type: "value",
     name: "能耗总量（万吨标煤）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -204,11 +204,11 @@ const barChart3Option = ref({
     type: "category",
     data: years,
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
   },
@@ -216,19 +216,19 @@ const barChart3Option = ref({
     type: "value",
     name: "能耗总量（万吨标煤）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -318,19 +318,19 @@ const scatterChart1Option = ref({
     type: "value",
     name: "能耗总量（万吨标煤）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -338,19 +338,19 @@ const scatterChart1Option = ref({
     type: "value",
     name: "碳排放总量（万吨CO2）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -395,19 +395,19 @@ const scatterChart2Option = ref({
     type: "value",
     name: "能耗强度（吨标煤/万元）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },
@@ -415,19 +415,19 @@ const scatterChart2Option = ref({
     type: "value",
     name: "碳排放强度（吨CO2/万元）",
     nameTextStyle: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLabel: {
-      color: "#7EB7FD",
+      color: "#fff",
     },
     axisLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.3)",
+        color: "rgba(255,255,255,.5)",
       },
     },
     splitLine: {
       lineStyle: {
-        color: "rgba(31,99,163,.1)",
+        color: "rgba(255,255,255,.2)",
       },
     },
   },

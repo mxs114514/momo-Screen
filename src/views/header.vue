@@ -26,6 +26,8 @@ const navItems = ref([
   { name: "供应链列表", path: "/environmental" },
   { name: "追溯码", path: "/policy" },
   { name: "采购订单", path: "/report" },
+  { name: "发货单列表", path: "/delivery" },
+  { name: "合同", path: "/contract" },
 ]);
 
 // 导航栏展开状态
@@ -91,15 +93,31 @@ timeFn();
         </div>
 
         <!-- 其他导航项（展开状态显示） -->
-        <div
-          v-for="item in navItems.slice(1)"
-          :key="item.path"
-          class="nav-item other-item"
-          :class="{ active: route.path === item.path }"
-          @click="handleNavClick(item)"
-          v-show="isNavExpanded"
-        >
-          {{ item.name }}
+        <div class="nav-items-container" v-show="isNavExpanded">
+          <!-- 第一行：4个项目 -->
+          <div class="nav-row first-row">
+            <div
+              v-for="item in navItems.slice(1, 5)"
+              :key="item.path"
+              class="nav-item other-item"
+              :class="{ active: route.path === item.path }"
+              @click="handleNavClick(item)"
+            >
+              {{ item.name }}
+            </div>
+          </div>
+          <!-- 第二行：3个项目 -->
+          <div class="nav-row second-row">
+            <div
+              v-for="item in navItems.slice(5)"
+              :key="item.path"
+              class="nav-item other-item"
+              :class="{ active: route.path === item.path }"
+              @click="handleNavClick(item)"
+            >
+              {{ item.name }}
+            </div>
+          </div>
         </div>
       </nav>
     </div>
@@ -172,12 +190,33 @@ timeFn();
 
   .nav-menu {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     transition: all 0.3s ease;
 
     &.expanded {
-      gap: 8px;
+      gap: 12px;
+      align-items: flex-start;
+    }
+  }
+
+  .nav-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &.first-row {
+      // 第一行样式
+    }
+
+    &.second-row {
+      // 第二行样式
     }
   }
 
@@ -232,7 +271,9 @@ timeFn();
   }
 
   .home-item {
-    // 首页按钮样式保持不变
+    &:hover {
+      transform: none; // 覆盖通用悬停效果，保持位置不变
+    }
   }
 
   .other-item {
