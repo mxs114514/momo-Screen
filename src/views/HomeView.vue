@@ -15,40 +15,20 @@ const { isScale } = storeToRefs(settingStore);
 const wrapperStyle = {};
 
 // 聊天窗口状态
-const chatWindowVisible = ref(false);
-const floatingBallPosition = ref({ x: 0, y: 0 });
-const chatWindowSide = ref<'left' | 'right'>('right');
+const chatVisible = ref(false);
+const chatPosition = ref({ x: 0, y: 0 });
+const chatIsLeftSide = ref(false);
 
-// 悬浮球点击处理
-const handleFloatingBallClick = (position: { x: number; y: number }) => {
-  floatingBallPosition.value = position;
-  
-  // 根据悬浮球位置决定聊天窗口显示在哪一侧
-  const screenWidth = window.innerWidth;
-  chatWindowSide.value = position.x < screenWidth / 2 ? 'left' : 'right';
-  
-  chatWindowVisible.value = true;
+// 处理悬浮球点击事件
+const handleFloatingBallClick = (position: { x: number; y: number }, isLeftSide: boolean) => {
+  chatPosition.value = position;
+  chatIsLeftSide.value = isLeftSide;
+  chatVisible.value = true;
 };
 
-// 悬浮球位置变化处理
-const handleFloatingBallPositionChange = (position: { x: number; y: number }) => {
-  floatingBallPosition.value = position;
-  
-  // 如果聊天窗口打开，更新侧边
-  if (chatWindowVisible.value) {
-    const screenWidth = window.innerWidth;
-    chatWindowSide.value = position.x < screenWidth / 2 ? 'left' : 'right';
-  }
-};
-
-// 聊天窗口关闭处理
-const handleChatWindowClose = () => {
-  chatWindowVisible.value = false;
-};
-
-// 聊天窗口最小化处理
-const handleChatWindowMinimize = () => {
-  chatWindowVisible.value = false;
+// 处理聊天窗口关闭事件
+const handleChatClose = () => {
+  chatVisible.value = false;
 };
 </script>
 
@@ -71,21 +51,16 @@ const handleChatWindowMinimize = () => {
       <MessageContent />
     </div>
   </scale-screen>
-  
-  <!-- 悬浮球组件 - 移到ScaleScreen外部以确保fixed定位正常工作 -->
-  <FloatingBall
-    @click="handleFloatingBallClick"
-    @position-change="handleFloatingBallPositionChange"
-  />
-  <!-- AI聊天窗口 -->
-  <ChatWindow
-    :visible="chatWindowVisible"
-    :position="floatingBallPosition"
-    :side="chatWindowSide"
-    @close="handleChatWindowClose"
-    @minimize="handleChatWindowMinimize"
-  />
   <Setting />
+  
+  <!-- AI悬浮球和聊天窗口 -->
+  <FloatingBall @click="handleFloatingBallClick" />
+  <ChatWindow 
+    :visible="chatVisible"
+    :position="chatPosition"
+    :isLeftSide="chatIsLeftSide"
+    @close="handleChatClose"
+  />
 </template>
 <style lang="scss" scoped>
 .content_wrap {

@@ -1,255 +1,273 @@
 <template>
   <div
-    ref="floatingBallRef"
+    ref="floatingBall"
     class="floating-ball"
-    :class="{ 'is-docked': isDocked, 'is-hidden': isHidden }"
+    :class="{ 'is-dragging': isDragging, 'is-edge': isAtEdge }"
     :style="ballStyle"
     @mousedown="startDrag"
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
-    <img src="@/assets/img/人工智能-copy.png" alt="AI助手" class="ball-icon" />
+    <div class="ball-content">
+      <img 
+        src="@/assets/img/人工智能-copy.png" 
+        alt="AI助手" 
+        class="ai-icon"
+      />
+      <div class="tech-glow"></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 
-// 定义事件
+interface Position {
+  x: number
+  y: number
+}
+
 const emit = defineEmits<{
-  click: [position: { x: number; y: number }]
-  'position-change': [position: { x: number; y: number }]
+  click: [position: Position, isLeftSide: boolean]
 }>()
 
-// 响应式数据
-const floatingBallRef = ref<HTMLElement>()
+const floatingBall = ref<HTMLElement>()
 const isDragging = ref(false)
-const isDocked = ref(false)
-const isHidden = ref(false)
-const isHovering = ref(false)
+const isAtEdge = ref(false)
+const isHovered = ref(false)
 
-// 位置数据
-const position = reactive({
+const position = reactive<Position>({
   x: window.innerWidth - 80, // 初始位置在右侧
   y: window.innerHeight / 2 - 30
 })
 
-// 拖拽相关数据
-const dragData = reactive({
-  startX: 0,
-  startY: 0,
-  offsetX: 0,
-  offsetY: 0
-})
-
-// 计算样式
 const ballStyle = computed(() => ({
   left: `${position.x}px`,
   top: `${position.y}px`,
-  transform: isDocked.value && !isHovering.value ? 
-    (position.x < window.innerWidth / 2 ? 'translateX(-50%)' : 'translateX(50%)') : 
-    'translateX(0)'
+  transform: isAtEdge.value && !isHovered.value && !isDragging.value 
+    ? (position.x < window.innerWidth / 2 ? 'translateX(-50%)' : 'translateX(50%)')
+    : 'translateX(0)'
 }))
 
-// 开始拖拽
+let dragOffset = { x: 0, y: 0 }
+let autoEdgeTimer: number | null = null
+
 const startDrag = (e: MouseEvent) => {
-  if (e.button !== 0) return // 只响应左键
-  
-  isDragging.value = true
-  isDocked.value = false
-  isHidden.value = false
-  
-  dragData.startX = e.clientX
-  dragData.startY = e.clientY
-  dragData.offsetX = e.clientX - position.x
-  dragData.offsetY = e.clientY - position.y
-  
-  document.addEventListener('mousemove', handleDrag)
-  document.addEventListener('mouseup', stopDrag)
-  
   e.preventDefault()
+  isDragging.value = true
+  isAtEdge.value = false
+  
+  const rect = floatingBall.value!.getBoundingClientRect()
+  dragOffset.x = e.clientX - rect.left
+  dragOffset.y = e.clientY - rect.top
+  
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', stopDrag)
 }
 
-// 拖拽中
-const handleDrag = (e: MouseEvent) => {
+const onDrag = (e: MouseEvent) => {
   if (!isDragging.value) return
   
-  const newX = e.clientX - dragData.offsetX
-  const newY = e.clientY - dragData.offsetY
-  
-  // 限制在屏幕范围内
-  position.x = Math.max(0, Math.min(window.innerWidth - 60, newX))
-  position.y = Math.max(0, Math.min(window.innerHeight - 60, newY))
-  
-  // 实时触发位置变化事件
-  emit('position-change', {
-    x: position.x,
-    y: position.y
-  })
+  position.x = Math.max(0, Math.min(window.innerWidth - 60, e.clientX - dragOffset.x))
+  position.y = Math.max(0, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y))
 }
 
-// 停止拖拽
 const stopDrag = () => {
-  if (!isDragging.value) return
-  
   isDragging.value = false
-  
-  document.removeEventListener('mousemove', handleDrag)
+  document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
   
-  // 自动吸边
-  autoSnap()
-  
-  // 触发位置变化事件
-  emit('position-change', {
-    x: position.x,
-    y: position.y
-  })
+  // 延迟自动吸边
+  autoEdgeTimer = window.setTimeout(() => {
+    autoSnapToEdge()
+  }, 1000)
 }
 
-// 自动吸边
-const autoSnap = () => {
+const autoSnapToEdge = () => {
   const centerX = window.innerWidth / 2
-  const ballCenterX = position.x + 30 // 球的中心点
+  const targetX = position.x < centerX ? 0 : window.innerWidth - 60
   
-  // 判断靠近哪一边
-  if (ballCenterX < centerX) {
-    // 靠近左边
-    position.x = 0
-  } else {
-    // 靠近右边
-    position.x = window.innerWidth - 60
-  }
+  // 平滑动画到边缘
+  const startX = position.x
+  const distance = targetX - startX
+  const duration = 300
+  const startTime = Date.now()
   
-  isDocked.value = true
-  
-  // 延迟隐藏
-  setTimeout(() => {
-    if (!isHovering.value) {
-      isHidden.value = true
+  const animate = () => {
+    const elapsed = Date.now() - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    const easeOut = 1 - Math.pow(1 - progress, 3)
+    
+    position.x = startX + distance * easeOut
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate)
+    } else {
+      isAtEdge.value = true
     }
-  }, 2000)
-}
-
-// 鼠标进入
-const handleMouseEnter = () => {
-  isHovering.value = true
-  isHidden.value = false
-}
-
-// 鼠标离开
-const handleMouseLeave = () => {
-  isHovering.value = false
-  
-  if (isDocked.value) {
-    setTimeout(() => {
-      if (!isHovering.value) {
-        isHidden.value = true
-      }
-    }, 1000)
   }
+  
+  requestAnimationFrame(animate)
 }
 
-// 点击事件
 const handleClick = (e: MouseEvent) => {
-  // 如果刚刚拖拽过，不触发点击
-  if (Math.abs(e.clientX - dragData.startX) > 5 || Math.abs(e.clientY - dragData.startY) > 5) {
-    return
-  }
+  if (isDragging.value) return
   
-  emit('click', {
-    x: position.x,
-    y: position.y
-  })
+  e.stopPropagation()
+  const isLeftSide = position.x < window.innerWidth / 2
+  emit('click', { x: position.x, y: position.y }, isLeftSide)
 }
 
-// 窗口大小变化处理
+const handleMouseEnter = () => {
+  isHovered.value = true
+  if (autoEdgeTimer) {
+    clearTimeout(autoEdgeTimer)
+    autoEdgeTimer = null
+  }
+}
+
+const handleMouseLeave = () => {
+  isHovered.value = false
+  if (!isDragging.value && isAtEdge.value) {
+    // 鼠标离开后重新半隐藏
+    autoEdgeTimer = window.setTimeout(() => {
+      // 触发重新渲染以应用半隐藏效果
+    }, 500)
+  }
+}
+
 const handleResize = () => {
-  // 确保悬浮球在屏幕范围内
-  position.x = Math.max(0, Math.min(window.innerWidth - 60, position.x))
-  position.y = Math.max(0, Math.min(window.innerHeight - 60, position.y))
-  
-  if (isDocked.value) {
-    autoSnap()
-  }
+  // 窗口大小改变时调整位置
+  position.x = Math.min(position.x, window.innerWidth - 60)
+  position.y = Math.min(position.y, window.innerHeight - 60)
 }
 
-// 生命周期
 onMounted(() => {
   window.addEventListener('resize', handleResize)
-  
   // 初始自动吸边
   setTimeout(() => {
-    autoSnap()
+    autoSnapToEdge()
   }, 1000)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  document.removeEventListener('mousemove', handleDrag)
-  document.removeEventListener('mouseup', stopDrag)
+  if (autoEdgeTimer) {
+    clearTimeout(autoEdgeTimer)
+  }
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .floating-ball {
   position: fixed;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+  box-shadow: 
+    0 4px 20px rgba(59, 130, 246, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   cursor: pointer;
   z-index: 9999;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  backdrop-filter: blur(10px);
+}
+
+.floating-ball:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 
+    0 8px 30px rgba(59, 130, 246, 0.5),
+    0 0 0 2px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.floating-ball.is-dragging {
+  transform: scale(1.05);
+  box-shadow: 
+    0 12px 40px rgba(59, 130, 246, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.floating-ball.is-edge {
+  opacity: 0.7;
+}
+
+.floating-ball.is-edge:not(:hover) {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.ball-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  
-  &:hover {
-    transform: scale(1.1) !important;
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.ai-icon {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
+  z-index: 2;
+  position: relative;
+}
+
+.tech-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
   }
-  
-  &:active {
-    transform: scale(0.95) !important;
-  }
-  
-  &.is-docked {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    &.is-hidden {
-      opacity: 0.7;
-    }
-  }
-  
-  .ball-icon {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-    filter: brightness(1.2) contrast(1.1);
-    transition: all 0.3s ease;
-  }
-  
-  &:hover .ball-icon {
-    filter: brightness(1.4) contrast(1.2);
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.2);
   }
 }
 
-// 响应式设计
-@media (max-width: 768px) {
-  .floating-ball {
-    width: 50px;
-    height: 50px;
-    
-    .ball-icon {
-      width: 30px;
-      height: 30px;
-    }
+/* 科技感边框动画 */
+.floating-ball::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-ball:hover::before {
+  opacity: 1;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
