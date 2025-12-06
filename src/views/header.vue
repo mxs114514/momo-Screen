@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import dayjs from "dayjs";
 import type { DateDataType } from "./index.d";
 import { useSettingStore } from "@/stores/index";
 import { useRouter, useRoute } from "vue-router";
+import { getEnvironmentData, randomInt } from "@/utils/mockData";
 
 const dateData = reactive<DateDataType>({
   dateDay: "",
   dateYear: "",
   dateWeek: "",
   timing: null,
+});
+
+const weatherData = reactive({
+  temp: 0,
+  weather: '晴',
+  icon: '☀️'
 });
 
 const router = useRouter();
@@ -20,14 +27,15 @@ const weekday = ["周日", "周一", "周二", "周三", "周四", "周五", "�
 // 导航菜单配置
 const navItems = ref([
   { name: "首页", path: "/index" },
-  { name: "能源行业综合分析", path: "/analysis" },
-  { name: "能源行业趋势", path: "/trend" },
-  { name: "能源区域分析", path: "/supervision" },
-  { name: "供应链列表", path: "/environmental" },
-  { name: "追溯码", path: "/policy" },
-  { name: "采购订单", path: "/report" },
-  { name: "发货单", path: "/delivery" },
-  { name: "合同", path: "/contract" },
+  { name: "智能预警中心", path: "/warning" },
+  { name: "AI 策略与优化", path: "/ai-strategy" },
+  { name: "能碳数据报表", path: "/energy-report" },
+  { name: "碳资产区块链", path: "/carbon-blockchain" },
+  { name: "边缘计算监控", path: "/edge-monitor" },
+  { name: "环保贡献大屏", path: "/environmental-contribution" },
+  { name: "冰雪能源行业综合分析", path: "/analysis" },
+  { name: "冰雪能源行业趋势", path: "/trend" },
+  { name: "冰雪能源区域分析", path: "/supervision" },
 ]);
 
 // 导航栏展开状态
@@ -50,11 +58,26 @@ const handleNavMouseLeave = () => {
 
 const timeFn = () => {
   dateData.timing = setInterval(() => {
-    dateData.dateDay = dayjs().format("YYYY-MM-DD hh : mm : ss");
+    dateData.dateDay = dayjs().format("YYYY-MM-DD HH:mm:ss");
     dateData.dateWeek = weekday[dayjs().day()];
   }, 1000);
 };
-timeFn();
+
+const updateWeather = () => {
+  const env = getEnvironmentData();
+  weatherData.temp = env.temperature;
+  const weathers = ['晴', '多云', '阴', '小雨'];
+  const icons = ['☀️', '⛅', '☁️', '🌧️'];
+  const idx = randomInt(0, 3);
+  weatherData.weather = weathers[idx];
+  weatherData.icon = icons[idx];
+};
+
+onMounted(() => {
+  timeFn();
+  updateWeather();
+  setInterval(updateWeather, 60000);
+});
 </script>
 
 <template>
@@ -94,10 +117,10 @@ timeFn();
 
         <!-- 其他导航项（展开状态显示） -->
         <div class="nav-items-container" v-show="isNavExpanded">
-          <!-- 第一行：4个项目 -->
+          <!-- 第一行：5个项目 -->
           <div class="nav-row first-row">
             <div
-              v-for="item in navItems.slice(1, 5)"
+              v-for="item in navItems.slice(1, 6)"
               :key="item.path"
               class="nav-item other-item"
               :class="{ active: route.path === item.path }"
@@ -106,10 +129,10 @@ timeFn();
               {{ item.name }}
             </div>
           </div>
-          <!-- 第二行：3个项目 -->
+          <!-- 第二行：4个项目 -->
           <div class="nav-row second-row">
             <div
-              v-for="item in navItems.slice(5)"
+              v-for="item in navItems.slice(6)"
               :key="item.path"
               class="nav-item other-item"
               :class="{ active: route.path === item.path }"
@@ -125,13 +148,15 @@ timeFn();
     <!-- 中间标题 -->
     <div class="title-container">
       <div class="title">
-        <span class="title-text">新能源实时能源监测系统</span>
+        <span class="title-text">冰雪能源可视化实时监测系统</span>
       </div>
+      <div class="welcome-msg" v-if="route.path === '/index'">欢迎莅临智慧园区指导工作</div>
     </div>
 
-    <!-- 右侧时间 -->
+    <!-- 右侧时间与天气 -->
     <div class="timers">
-      {{ dateData.dateYear }} {{ dateData.dateWeek }} {{ dateData.dateDay }}
+      <span class="weather-info">{{ weatherData.icon }} {{ weatherData.weather }} {{ weatherData.temp }}℃</span>
+      <span class="time-info">{{ dateData.dateYear }} {{ dateData.dateWeek }} {{ dateData.dateDay }}</span>
       <div class="setting_icon" @click="setSettingShow(true)">
         <img src="@/assets/img/headers/setting.png" alt="设置" />
       </div>
@@ -318,6 +343,9 @@ timeFn();
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .title {
@@ -346,29 +374,50 @@ timeFn();
     }
   }
 
+  .welcome-msg {
+    font-size: 14px;
+    color: #a1e5ff;
+    letter-spacing: 4px;
+    margin-top: -10px;
+    text-shadow: 0 0 5px rgba(0, 114, 255, 0.5);
+    animation: fadeIn 1s ease-in-out;
+    font-weight: bold;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   // 右侧时间样式
   .timers {
     position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0;
+    top: 30px;
     font-size: 18px;
     display: flex;
     align-items: center;
-    color: rgba(255, 255, 255, 0.9);
-    z-index: 5;
+    color: #fff;
+    
+    .weather-info {
+      margin-right: 20px;
+      font-size: 16px;
+      color: #00eaff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .time-info {
+      margin-right: 10px;
+    }
 
     .setting_icon {
       width: 20px;
       height: 20px;
       cursor: pointer;
-      margin-left: 12px;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: rotate(90deg);
-      }
-
+      margin-left: 10px;
+      margin-right: 20px;
       img {
         width: 100%;
         height: 100%;

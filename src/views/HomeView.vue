@@ -68,7 +68,8 @@ const handleChatClose = () => {
   height: 100%;
   padding: 16px 16px 16px 16px;
   box-sizing: border-box;
-  background-image: url("@/assets/img/pageBg.png");
+  // 叠加深色遮罩，提高文字对比度
+  background-image: linear-gradient(rgba(0, 10, 30, 0.4), rgba(0, 10, 30, 0.4)), url("@/assets/img/pageBg6.jpg");
   background-size: cover;
   background-position: center center;
 }

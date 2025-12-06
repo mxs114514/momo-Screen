@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import ItemWrap from "@/components/item-wrap";
+import ChartModal from "@/components/chart-modal.vue";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart, PieChart, ScatterChart } from "echarts/charts";
@@ -22,6 +23,7 @@ use([
   LegendComponent,
   GridComponent,
 ]);
+
 
 // 生成年份数据
 const generateYearData = () => {
@@ -70,6 +72,26 @@ const industryDetailData = [
 // 计算总量
 const calculateTotal = (data: any[]) => {
   return data.reduce((sum, item) => sum + item.value, 0);
+};
+
+// 工具函数：生成指定范围的随机数（保留指定小数位）
+const randomInRange = (min: number, max: number, decimals = 0): number => {
+  const v = Math.random() * (max - min) + min;
+  return parseFloat(v.toFixed(decimals));
+};
+
+// 图表放大相关
+const modalVisible = ref(false);
+const modalTitle = ref('');
+
+const handleChartZoom = (title: string) => {
+  modalTitle.value = title;
+  modalVisible.value = true;
+};
+
+const handleModalClose = () => {
+  modalVisible.value = false;
+  modalTitle.value = '';
 };
 
 // 上方数据
@@ -290,57 +312,31 @@ const scatterChart1Option = ref({
     {
       name: "钢铁企业",
       type: "scatter",
-      data: [
-        [125, 380],
-        [195, 285],
-        [260, 580],
-        [180, 450],
-      ],
+      data: [[randomInRange(100, 300, 0), randomInRange(250, 650, 0)]],
       itemStyle: { color: "#FF6B6B" },
     },
     {
       name: "化工企业",
       type: "scatter",
-      data: [
-        [135, 290],
-        [85, 180],
-        [110, 245],
-        [145, 315],
-      ],
+      data: [[randomInRange(80, 160, 0), randomInRange(160, 350, 0)]],
       itemStyle: { color: "#4ECDC4" },
     },
     {
       name: "电力企业",
       type: "scatter",
-      data: [
-        [285, 650],
-        [350, 780],
-        [220, 520],
-        [310, 720],
-      ],
+      data: [[randomInRange(200, 380, 0), randomInRange(500, 820, 0)]],
       itemStyle: { color: "#45B7D1" },
     },
     {
       name: "建材企业",
       type: "scatter",
-      data: [
-        [95, 185],
-        [140, 280],
-        [65, 125],
-        [120, 240],
-        [155, 320],
-      ],
+      data: [[randomInRange(60, 160, 0), randomInRange(120, 340, 0)]],
       itemStyle: { color: "#96CEB4" },
     },
     {
       name: "有色企业",
       type: "scatter",
-      data: [
-        [165, 350],
-        [185, 280],
-        [145, 390],
-        [175, 315],
-      ],
+      data: [[randomInRange(140, 200, 0), randomInRange(260, 400, 0)]],
       itemStyle: { color: "#FFEAA7" },
     },
   ],
@@ -401,55 +397,31 @@ const scatterChart2Option = ref({
     {
       name: "钢铁企业",
       type: "scatter",
-      data: [
-        [3.8, 8.5],
-        [2.9, 6.2],
-        [4.3, 9.8],
-        [3.5, 7.9],
-      ],
+      data: [[randomInRange(2.5, 4.5, 1), randomInRange(6.0, 10.5, 1)]],
       itemStyle: { color: "#FF6B6B" },
     },
     {
       name: "化工企业",
       type: "scatter",
-      data: [
-        [6.2, 13.5],
-        [4.8, 10.2],
-        [5.9, 14.8],
-      ],
+      data: [[randomInRange(4.5, 6.5, 1), randomInRange(10.0, 15.0, 1)]],
       itemStyle: { color: "#4ECDC4" },
     },
     {
       name: "电力企业",
       type: "scatter",
-      data: [
-        [11.8, 25.2],
-        [14.2, 30.8],
-        [9.8, 22.5],
-      ],
+      data: [[randomInRange(9.0, 15.0, 1), randomInRange(20.0, 32.0, 1)]],
       itemStyle: { color: "#45B7D1" },
     },
     {
       name: "建材企业",
       type: "scatter",
-      data: [
-        [2.1, 4.2],
-        [1.8, 3.5],
-        [3.2, 5.8],
-        [2.6, 4.9],
-        [1.4, 2.8],
-      ],
+      data: [[randomInRange(1.2, 3.5, 1), randomInRange(2.5, 6.0, 1)]],
       itemStyle: { color: "#96CEB4" },
     },
     {
       name: "有色企业",
       type: "scatter",
-      data: [
-        [8.5, 18.2],
-        [6.8, 15.8],
-        [10.2, 22.5],
-        [7.5, 16.8],
-      ],
+      data: [[randomInRange(6.5, 10.5, 1), randomInRange(15.0, 23.0, 1)]],
       itemStyle: { color: "#FFEAA7" },
     },
   ],
@@ -476,38 +448,46 @@ onMounted(() => {
 
     <!-- 中间3/7：左边折线图，右边饼图 -->
     <div class="middle-section">
-      <ItemWrap class="chart-item" title="能耗总量-历史趋势">
+      <ItemWrap class="chart-item" title="能耗总量-历史趋势" @zoom="handleChartZoom('能耗总量-历史趋势')">
         <v-chart class="chart" :option="lineChartOption" />
       </ItemWrap>
-      <ItemWrap class="chart-item" title="能耗总量-区域占比">
+      <ItemWrap class="chart-item" title="能耗总量-区域占比" @zoom="handleChartZoom('能耗总量-区域占比')">
         <v-chart class="chart" :option="regionPieOption" />
       </ItemWrap>
     </div>
 
     <!-- 下方3/7：左右两边平均分的散点图 -->
     <div class="bottom-section">
-      <ItemWrap class="scatter-chart" title="企业-总量">
+      <ItemWrap class="scatter-chart" title="企业-总量" @zoom="handleChartZoom('企业-总量')">
         <v-chart class="chart" :option="scatterChart1Option" />
       </ItemWrap>
-      <ItemWrap class="scatter-chart" title="企业-强度">
+      <ItemWrap class="scatter-chart" title="企业-强度" @zoom="handleChartZoom('企业-强度')">
         <v-chart class="chart" :option="scatterChart2Option" />
       </ItemWrap>
     </div>
   </div>
+
+  <ChartModal 
+    :visible="modalVisible" 
+    :title="modalTitle" 
+    @close="handleModalClose"
+  >
+    <v-chart v-if="modalTitle === '能耗总量-历史趋势'" class="chart" :option="lineChartOption" />
+    <v-chart v-if="modalTitle === '能耗总量-区域占比'" class="chart" :option="regionPieOption" />
+    <v-chart v-if="modalTitle === '企业-总量'" class="chart" :option="scatterChart1Option" />
+    <v-chart v-if="modalTitle === '企业-强度'" class="chart" :option="scatterChart2Option" />
+  </ChartModal>
 </template>
 
 <style scoped lang="scss">
 .analysis-container {
   width: 100%;
-  height: calc(100vh - 64px);
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
-  gap: 24px;
-  background-image: url("@/assets/img/pageBg.png");
-  background-size: cover;
-  background-position: center center;
+  gap: 20px;
 }
 
 // 上方1/7区域
@@ -526,19 +506,18 @@ onMounted(() => {
 
 .data-item {
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(147, 235, 248, 0.3);
+  border: 1px solid rgba(255, 107, 0, 0.3);
   border-radius: 6px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(5px);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(147, 235, 248, 0.6);
-    box-shadow: 0 0 15px rgba(147, 235, 248, 0.3);
+    border-color: rgba(255, 107, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
   }
 
   .data-label {
@@ -548,7 +527,7 @@ onMounted(() => {
   }
 
   .data-value {
-    color: #00eaff;
+    color: #ffb000;
     font-size: 16px;
     font-weight: bold;
 

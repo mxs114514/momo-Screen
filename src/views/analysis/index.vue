@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { graphic } from "echarts";
 import ItemWrap from "@/components/item-wrap";
+import ChartModal from "@/components/chart-modal.vue";
 
 // 上方八组数据
 const topData = ref([
@@ -280,56 +281,31 @@ const scatterChart1Option = ref({
     {
       name: "钢铁企业",
       type: "scatter",
-      data: [
-        [85, 195],
-        [145, 315],
-        [220, 485],
-        [280, 620],
-      ],
+      data: [[120, 280]],
       itemStyle: { color: "#FF6B6B" },
     },
     {
       name: "化工企业",
       type: "scatter",
-      data: [
-        [65, 140],
-        [95, 205],
-        [125, 270],
-        [155, 335],
-      ],
+      data: [[90, 190]],
       itemStyle: { color: "#4ECDC4" },
     },
     {
       name: "电力企业",
       type: "scatter",
-      data: [
-        [320, 720],
-        [380, 860],
-        [450, 1020],
-      ],
+      data: [[380, 850]],
       itemStyle: { color: "#45B7D1" },
     },
     {
       name: "建材企业",
       type: "scatter",
-      data: [
-        [45, 98],
-        [75, 162],
-        [105, 228],
-        [135, 294],
-        [165, 358],
-      ],
+      data: [[80, 180]],
       itemStyle: { color: "#96CEB4" },
     },
     {
       name: "有色企业",
       type: "scatter",
-      data: [
-        [110, 245],
-        [140, 315],
-        [185, 415],
-        [225, 505],
-      ],
+      data: [[160, 350]],
       itemStyle: { color: "#FFEAA7" },
     },
   ],
@@ -390,59 +366,48 @@ const scatterChart2Option = ref({
     {
       name: "钢铁企业",
       type: "scatter",
-      data: [
-        [1.2, 2.8],
-        [2.8, 6.5],
-        [4.5, 10.2],
-        [6.2, 14.8],
-      ],
+      data: [[3.5, 7.8]],
       itemStyle: { color: "#FF6B6B" },
     },
     {
       name: "化工企业",
       type: "scatter",
-      data: [
-        [3.8, 8.2],
-        [5.5, 12.1],
-        [7.2, 15.8],
-      ],
+      data: [[6.2, 13.5]],
       itemStyle: { color: "#4ECDC4" },
     },
     {
       name: "电力企业",
       type: "scatter",
-      data: [
-        [8.5, 18.5],
-        [12.3, 26.8],
-        [15.8, 34.2],
-      ],
+      data: [[11.8, 25.2]],
       itemStyle: { color: "#45B7D1" },
     },
     {
       name: "建材企业",
       type: "scatter",
-      data: [
-        [0.8, 1.5],
-        [1.5, 2.8],
-        [2.2, 4.1],
-        [2.9, 5.5],
-        [3.6, 6.8],
-      ],
+      data: [[2.1, 4.3]],
       itemStyle: { color: "#96CEB4" },
     },
     {
       name: "有色企业",
       type: "scatter",
-      data: [
-        [4.2, 9.5],
-        [6.8, 15.2],
-        [9.5, 21.8],
-        [12.1, 28.5],
-      ],
+      data: [[7.8, 17.2]],
       itemStyle: { color: "#FFEAA7" },
     },
   ],
 });
+
+const modalVisible = ref(false);
+const modalTitle = ref('');
+
+const handleChartZoom = (title: string) => {
+  modalTitle.value = title;
+  modalVisible.value = true;
+};
+
+const handleModalClose = () => {
+  modalVisible.value = false;
+  modalTitle.value = '';
+};
 
 onMounted(() => {
   console.log("能源行业综合分析页面已加载");
@@ -465,44 +430,54 @@ onMounted(() => {
 
     <!-- 中间3/7：一个柱状图和三个饼状图并列排成一排 -->
     <div class="middle-section">
-      <ItemWrap class="chart-item" title="能耗总量-历史趋势">
+      <ItemWrap class="chart-item" title="能耗总量-历史趋势" @zoom="handleChartZoom('能耗总量-历史趋势')">
         <v-chart class="chart" :option="barChartOption" />
       </ItemWrap>
-      <ItemWrap class="chart-item" title="能耗总量-行业大类">
+      <ItemWrap class="chart-item" title="能耗总量-行业大类" @zoom="handleChartZoom('能耗总量-行业大类')">
         <v-chart class="chart" :option="pieChart1Option" />
       </ItemWrap>
-      <ItemWrap class="chart-item" title="能耗总量-行业中类">
+      <ItemWrap class="chart-item" title="能耗总量-行业中类" @zoom="handleChartZoom('能耗总量-行业中类')">
         <v-chart class="chart" :option="pieChart2Option" />
       </ItemWrap>
-      <ItemWrap class="chart-item" title="能耗总量-行业细类">
+      <ItemWrap class="chart-item" title="能耗总量-行业细类" @zoom="handleChartZoom('能耗总量-行业细类')">
         <v-chart class="chart" :option="pieChart3Option" />
       </ItemWrap>
     </div>
 
     <!-- 下方3/7：左右两边平均分的散点图 -->
     <div class="bottom-section">
-      <ItemWrap class="scatter-chart" title="企业-总量">
+      <ItemWrap class="scatter-chart" title="企业-总量" @zoom="handleChartZoom('企业-总量')">
         <v-chart class="chart" :option="scatterChart1Option" />
       </ItemWrap>
-      <ItemWrap class="scatter-chart" title="企业-强度">
+      <ItemWrap class="scatter-chart" title="企业-强度" @zoom="handleChartZoom('企业-强度')">
         <v-chart class="chart" :option="scatterChart2Option" />
       </ItemWrap>
     </div>
   </div>
+
+  <ChartModal 
+    :visible="modalVisible" 
+    :title="modalTitle" 
+    @close="handleModalClose"
+  >
+    <v-chart v-if="modalTitle === '能耗总量-历史趋势'" class="chart" :option="barChartOption" />
+    <v-chart v-if="modalTitle === '能耗总量-行业大类'" class="chart" :option="pieChart1Option" />
+    <v-chart v-if="modalTitle === '能耗总量-行业中类'" class="chart" :option="pieChart2Option" />
+    <v-chart v-if="modalTitle === '能耗总量-行业细类'" class="chart" :option="pieChart3Option" />
+    <v-chart v-if="modalTitle === '企业-总量'" class="chart" :option="scatterChart1Option" />
+    <v-chart v-if="modalTitle === '企业-强度'" class="chart" :option="scatterChart2Option" />
+  </ChartModal>
 </template>
 
 <style scoped lang="scss">
 .analysis-container {
   width: 100%;
-  height: calc(100vh - 64px);
+  height: 80%;
   display: flex;
   flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
-  gap: 24px;
-  background-image: url("@/assets/img/pageBg.png");
-  background-size: cover;
-  background-position: center center;
+  gap: 20px;
 }
 
 // 上方1/7区域
@@ -521,19 +496,18 @@ onMounted(() => {
 
 .data-item {
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(147, 235, 248, 0.3);
+  border: 1px solid rgba(255, 107, 0, 0.3);
   border-radius: 6px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(5px);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(147, 235, 248, 0.6);
-    box-shadow: 0 0 15px rgba(147, 235, 248, 0.3);
+    border-color: rgba(255, 107, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
   }
 
   .data-label {
@@ -543,7 +517,7 @@ onMounted(() => {
   }
 
   .data-value {
-    color: #00eaff;
+    color: #ffb000;
     font-size: 16px;
     font-weight: bold;
 

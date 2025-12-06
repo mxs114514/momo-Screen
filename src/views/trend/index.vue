@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { graphic } from "echarts";
 import VChart from "vue-echarts";
 import ItemWrap from "@/components/item-wrap";
+import ChartModal from "@/components/chart-modal.vue";
 
 // 生成2018-2024年的年份数据
 const years = ["2018", "2019", "2020", "2021", "2022", "2023", "2024"];
@@ -47,6 +48,15 @@ const calculateTotalData = (data: Record<string, number[]>) => {
     return Object.values(data).reduce((sum, values) => sum + values[index], 0);
   });
 };
+// 差异化工具与预计算（放大三图差异，保持递增趋势）
+const transformSeries = (base: number[], scale: number, increment: number) =>
+  base.map((v, i) => Math.round(v * scale + i * increment));
+const totalMajor = calculateTotalData(industryMajorData);
+const totalMedium = calculateTotalData(industryMediumData);
+const totalDetail = calculateTotalData(industryDetailData);
+const chart1Data = transformSeries(totalMajor, 1.0, 0);
+const chart2Data = transformSeries(totalMedium, 0.75, 35);
+const chart3Data = transformSeries(totalDetail, 0.55, 60);
 
 // 柱状图1配置（行业大类能耗趋势）
 const barChart1Option = ref({
@@ -102,7 +112,7 @@ const barChart1Option = ref({
   },
   series: [
     {
-      data: calculateTotalData(industryMajorData),
+      data: chart1Data,
       type: "bar",
       itemStyle: {
         color: new graphic.LinearGradient(0, 0, 0, 1, [
@@ -168,7 +178,7 @@ const barChart2Option = ref({
   },
   series: [
     {
-      data: calculateTotalData(industryMediumData),
+      data: chart2Data,
       type: "bar",
       itemStyle: {
         color: new graphic.LinearGradient(0, 0, 0, 1, [
@@ -234,7 +244,7 @@ const barChart3Option = ref({
   },
   series: [
     {
-      data: calculateTotalData(industryDetailData),
+      data: chart3Data,
       type: "bar",
       itemStyle: {
         color: new graphic.LinearGradient(0, 0, 0, 1, [
@@ -442,6 +452,50 @@ const scatterChart2Option = ref({
   })),
 });
 
+const modalVisible = ref(false);
+const modalTitle = ref('');
+// 新增：当前组别与索引及总数
+const currentIndex = ref(0);
+const totalCount = computed(() => {
+  if (modalTitle.value === '能源行业趋势') return 3;
+  if (modalTitle.value === '行业象限分布') return 2;
+  return 1;
+});
+
+// 选中当前应展示的图表 option（根据组与索引）
+const displayedOption = computed(() => {
+  if (modalTitle.value === '能源行业趋势') {
+    const opts = [barChart1Option.value, barChart2Option.value, barChart3Option.value];
+    return opts[currentIndex.value] ?? opts[0];
+  }
+  if (modalTitle.value === '行业象限分布') {
+    const opts = [scatterChart1Option.value, scatterChart2Option.value];
+    return opts[currentIndex.value] ?? opts[0];
+  }
+  return undefined;
+});
+
+const handleChartZoom = (title: string) => {
+  modalTitle.value = title;
+  // 初始显示默认第一张
+  currentIndex.value = 0;
+  modalVisible.value = true;
+};
+
+const handleModalClose = () => {
+  modalVisible.value = false;
+  modalTitle.value = '';
+};
+
+// 切换前一张/后一张（循环）
+const handlePrev = () => {
+  if (totalCount.value <= 1) return;
+  currentIndex.value = (currentIndex.value - 1 + totalCount.value) % totalCount.value;
+};
+const handleNext = () => {
+  if (totalCount.value <= 1) return;
+  currentIndex.value = (currentIndex.value + 1) % totalCount.value;
+};
 onMounted(() => {
   console.log("能源行业趋势页面已加载");
 });
@@ -451,7 +505,7 @@ onMounted(() => {
   <div class="trend-container">
     <!-- 左侧柱状图区域 -->
     <div class="left-section">
-      <ItemWrap title="能源行业趋势">
+      <ItemWrap title="能源行业趋势" @zoom="handleChartZoom('能源行业趋势')">
         <div class="bar-charts-container">
           <div class="chart-item">
             <v-chart :option="barChart1Option" class="chart" />
@@ -468,7 +522,7 @@ onMounted(() => {
 
     <!-- 右侧散点图区域 -->
     <div class="right-section">
-      <ItemWrap title="行业象限分布">
+      <ItemWrap title="行业象限分布" @zoom="handleChartZoom('行业象限分布')">
         <div class="scatter-charts-container">
           <div class="chart-item">
             <v-chart :option="scatterChart1Option" class="chart" />
@@ -480,16 +534,30 @@ onMounted(() => {
       </ItemWrap>
     </div>
   </div>
+
+  <ChartModal 
+    :visible="modalVisible" 
+    :title="modalTitle" 
+    :showArrows="true"
+    :showPagination="true"
+    :currentIndex="currentIndex"
+    :total="totalCount"
+    @prev="handlePrev"
+    @next="handleNext"
+    @close="handleModalClose"
+  >
+    <v-chart v-if="displayedOption" class="chart" :option="displayedOption" />
+  </ChartModal>
 </template>
 
 <style scoped lang="scss">
 .trend-container {
   width: 100%;
-  height: calc(100vh - 64px);
-  padding: 16px;
+  height: 90%;
+  padding: 20px;
   box-sizing: border-box;
   display: flex;
-  gap: 16px;
+  gap: 20px;
 }
 
 // 左侧柱状图区域（占2/5）

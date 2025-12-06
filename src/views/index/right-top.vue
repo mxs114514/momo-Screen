@@ -1,242 +1,113 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { alarmNum } from "@/api";
-import { graphic } from "echarts/core";
-import { ElMessage } from "element-plus";
+import { reactive, onMounted } from "vue";
+import CountUp from "@/components/count-up";
 
-const option = ref({});
+const state = reactive({
+  total: 0,
+  running: 0,
+  standby: 0,
+  fault: 0,
+  offline: 0
+});
+
 const getData = () => {
-  alarmNum()
-    .then((res) => {
-      console.log("右上--重点项目总数 ", res);
-      if (res.success) {
-        setOption(res.data.dateList, res.data.numList, res.data.numList2);
-      } else {
-        ElMessage({
-          message: res.msg,
-          type: "warning",
-        });
-      }
-    })
-    .catch((err) => {
-      ElMessage.error(err);
-    });
+  // 模拟数据
+  state.total = 1250;
+  
+  // 故障 < 5 (0-4)
+  state.fault = Math.floor(Math.random() * 5);
+  
+  // 运行中 > 1100 (1101 - 1200)
+  // 预留至少 50 的空间给待机和离线，防止数据过于极端
+  state.running = 1101 + Math.floor(Math.random() * 100);
+  
+  // 计算剩余可用数量
+  const remain = state.total - state.running - state.fault;
+  
+  // 待机在剩余中随机分配
+  state.standby = Math.floor(Math.random() * (remain + 1));
+  
+  // 剩下的给离线，确保总和为 1250
+  state.offline = remain - state.standby;
 };
-const setOption = async (xData: any[], yData: any[], yData2: any[]) => {
-  option.value = {
-    // 动画配置
-    animationDuration: 2500,
-    animationEasing: 'quadraticOut',
-    animationDelay: function (idx: number) {
-      return idx * 50;
-    },
-    xAxis: {
-      type: "category",
-      data: xData,
-      boundaryGap: false, // 不留白，从原点开始
-      splitLine: {
-        show: true,
-        lineStyle: {
-          color: "rgba(31,99,163,.2)",
-        },
-      },
-      axisLine: {
-        // show:false,
-        lineStyle: {
-          color: "rgba(31,99,163,.1)",
-        },
-      },
-      axisLabel: {
-        color: "#7EB7FD",
-        fontWeight: "500",
-      },
-    },
-    yAxis: {
-      type: "value",
-      splitLine: {
-        show: true,
-        lineStyle: {
-          color: "rgba(31,99,163,.2)",
-        },
-      },
-      axisLine: {
-        lineStyle: {
-          color: "rgba(31,99,163,.1)",
-        },
-      },
-      axisLabel: {
-        color: "#7EB7FD",
-        fontWeight: "500",
-      },
-    },
-    tooltip: {
-      trigger: "axis",
-      backgroundColor: "rgba(0,0,0,.6)",
-      borderColor: "rgba(147, 235, 248, .8)",
-      textStyle: {
-        color: "#FFF",
-      },
-    },
-    grid: {
-      //布局
-      show: true,
-      left: "10px",
-      right: "30px",
-      bottom: "10px",
-      top: "32px",
-      containLabel: true,
-      borderColor: "#1F63A3",
-    },
-    series: [
-      {
-        data: yData,
-        type: "line",
-        smooth: true,
-        symbol: "none", //去除点
-        name: "A类项目数量",
-        color: "rgba(252,144,16,.7)",
-        areaStyle: {
-          //右，下，左，上
-          color: new graphic.LinearGradient(
-            0,
-            0,
-            0,
-            1,
-            [
-              {
-                offset: 0,
-                color: "rgba(252,144,16,.7)",
-              },
-              {
-                offset: 1,
-                color: "rgba(252,144,16,.0)",
-              },
-            ],
-            false
-          ),
-        },
-        markPoint: {
-          data: [
-            {
-              name: "最大值",
-              type: "max",
-              valueDim: "y",
-              symbol: "rect",
-              symbolSize: [60, 26],
-              symbolOffset: [0, -20],
-              itemStyle: {
-                color: "rgba(0,0,0,0)",
-              },
-              label: {
-                color: "#FC9010",
-                backgroundColor: "rgba(252,144,16,0.1)",
-                borderRadius: 6,
-                padding: [7, 14],
-                borderWidth: 0.5,
-                borderColor: "rgba(252,144,16,.5)",
-                formatter: "A类项目：{c}",
-              },
-            },
-            {
-              name: "最大值",
-              type: "max",
-              valueDim: "y",
-              symbol: "circle",
-              symbolSize: 6,
-              itemStyle: {
-                color: "#FC9010",
-                shadowColor: "#FC9010",
-                shadowBlur: 8,
-              },
-              label: {
-                formatter: "",
-              },
-            },
-          ],
-        },
-      },
-      {
-        data: yData2,
-        type: "line",
-        smooth: true,
-        symbol: "none", //去除点
-        name: "B类项目数量",
-        color: "rgba(9,202,243,.7)",
-        areaStyle: {
-          //右，下，左，上
-          color: new graphic.LinearGradient(
-            0,
-            0,
-            0,
-            1,
-            [
-              {
-                offset: 0,
-                color: "rgba(9,202,243,.7)",
-              },
-              {
-                offset: 1,
-                color: "rgba(9,202,243,.0)",
-              },
-            ],
-            false
-          ),
-        },
-        markPoint: {
-          data: [
-            {
-              name: "最大值",
-              type: "max",
-              valueDim: "y",
-              symbol: "rect",
-              symbolSize: [60, 26],
-              symbolOffset: [0, -20],
-              itemStyle: {
-                color: "rgba(0,0,0,0)",
-              },
-              label: {
-                color: "#09CAF3",
-                backgroundColor: "rgba(9,202,243,0.1)",
 
-                borderRadius: 6,
-                borderColor: "rgba(9,202,243,.5)",
-                padding: [7, 14],
-                formatter: "B类项目：{c}",
-                borderWidth: 0.5,
-              },
-            },
-            {
-              name: "最大值",
-              type: "max",
-              valueDim: "y",
-              symbol: "circle",
-              symbolSize: 6,
-              itemStyle: {
-                color: "#09CAF3",
-                shadowColor: "#09CAF3",
-                shadowBlur: 8,
-              },
-              label: {
-                formatter: "",
-              },
-            },
-          ],
-        },
-      },
-    ],
-  };
-};
 onMounted(() => {
   getData();
+  setInterval(getData, 60000);
 });
 </script>
 
 <template>
-  <v-chart
-    class="chart"
-    :option="option"
-    v-if="JSON.stringify(option) != '{}'"
-  />
+  <div class="device-status">
+    <div class="status-item total">
+      <div class="label">设备总数</div>
+      <div class="value"><CountUp :endVal="state.total" :duration="1" /></div>
+    </div>
+    <div class="status-grid">
+      <div class="status-item running">
+        <div class="label">运行中</div>
+        <div class="value"><CountUp :endVal="state.running" :duration="1" /></div>
+      </div>
+      <div class="status-item standby">
+        <div class="label">待机</div>
+        <div class="value"><CountUp :endVal="state.standby" :duration="1" /></div>
+      </div>
+      <div class="status-item fault">
+        <div class="label">故障</div>
+        <div class="value"><CountUp :endVal="state.fault" :duration="1" /></div>
+      </div>
+      <div class="status-item offline">
+        <div class="label">离线</div>
+        <div class="value"><CountUp :endVal="state.offline" :duration="1" /></div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.device-status {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  .status-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 5px;
+    
+    .label {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+    
+    .value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    &.total {
+      background: rgba(0, 114, 255, 0.2);
+      border: 1px solid rgba(0, 114, 255, 0.5);
+      margin-bottom: 5px;
+      .value { color: #00eaff; font-size: 28px; }
+    }
+
+    &.running .value { color: #00ff00; }
+    &.standby .value { color: #ffaa00; }
+    &.fault .value { color: #ff0000; }
+    &.offline .value { color: #999; }
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+}
+</style>

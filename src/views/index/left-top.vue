@@ -1,73 +1,104 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { countDeviceNum } from "@/api";
+import { reactive, ref, onMounted } from "vue";
 import CountUp from "@/components/count-up";
-import { ElMessage } from "element-plus";
 
-const duration = ref(4);
+const duration = ref(2);
 const state = reactive({
-  alarmNum: 0,
-  offlineNum: 0,
-  onlineNum: 0,
-  totalNum: 0,
+  temperature: -15,
+  humidity: 45,
+  windSpeed: 3.5,
+  uvIndex: 2,
+  comfort: 85,
+  totalEnergy: 0,
+  energySaving: 0,
+  carbonReduction: 0
 });
 
 const getData = () => {
-  countDeviceNum()
-    .then((res) => {
-      console.log("左上--重要目标总览", res);
-      if (res.success) {
-        state.alarmNum = res.data.alarmNum;
-        state.offlineNum = res.data.offlineNum;
-        state.onlineNum = res.data.onlineNum;
-        state.totalNum = res.data.totalNum;
-      } else {
-        ElMessage.error(res.msg);
-      }
-    })
-    .catch((err) => {
-      ElMessage.error(err);
-    });
+  // 模拟数据
+  state.temperature = -15 + Math.random() * 2;
+  state.humidity = 40 + Math.random() * 10;
+  state.windSpeed = 2 + Math.random() * 3;
+  state.uvIndex = Math.floor(Math.random() * 5);
+  state.comfort = 80 + Math.floor(Math.random() * 15);
+  
+  state.totalEnergy = 12000 + Math.random() * 500;
+  state.energySaving = 15 + Math.random() * 5;
+  state.carbonReduction = 800 + Math.random() * 50;
 };
-getData();
+
+onMounted(() => {
+  getData();
+  setInterval(getData, 5000);
+});
 </script>
 
 <template>
-  <ul class="user_Overview flex">
-    <li class="user_Overview-item" style="color: #00fdfa">
-      <div class="user_Overview_nums allnum">
-        <CountUp :endVal="state.totalNum" :duration="duration" />
-      </div>
-      <p>能源总量及目标</p>
-    </li>
-    <li class="user_Overview-item" style="color: #07f7a8">
-      <div class="user_Overview_nums online">
-        <CountUp :endVal="state.onlineNum" :duration="duration" />
-      </div>
-      <p>能源强度及目标</p>
-    </li>
-    <li class="user_Overview-item" style="color: #e3b337">
-      <div class="user_Overview_nums offline">
-        <CountUp :endVal="state.offlineNum" :duration="duration" />
-      </div>
-      <p>碳排放总量及目标</p>
-    </li>
-    <li class="user_Overview-item" style="color: #f5023d">
-      <div class="user_Overview_nums laramnum">
-        <CountUp :endVal="state.alarmNum" :duration="duration" />
-      </div>
-      <p>碳排放强度及目标</p>
-    </li>
-  </ul>
+  <div class="left-top-content">
+    <ul class="user_Overview flex">
+      <li class="user_Overview-item" style="color: #00fdfa">
+        <div class="user_Overview_nums allnum">
+          <CountUp :endVal="state.temperature" :duration="duration" :decimalPlaces="1" />
+        </div>
+        <p>温度 (℃)</p>
+      </li>
+      <li class="user_Overview-item" style="color: #07f7a8">
+        <div class="user_Overview_nums online">
+          <CountUp :endVal="state.humidity" :duration="duration" :decimalPlaces="0" />
+        </div>
+        <p>湿度 (%)</p>
+      </li>
+      <li class="user_Overview-item" style="color: #e3b337">
+        <div class="user_Overview_nums offline">
+          <CountUp :endVal="state.windSpeed" :duration="duration" :decimalPlaces="1" />
+        </div>
+        <p>风速 (m/s)</p>
+      </li>
+      <li class="user_Overview-item" style="color: #f5023d">
+        <div class="user_Overview_nums laramnum">
+          <CountUp :endVal="state.comfort" :duration="duration" :decimalPlaces="0" />
+        </div>
+        <p>舒适度</p>
+      </li>
+    </ul>
+    
+    <ul class="user_Overview flex">
+      <li class="user_Overview-item" style="color: #00fdfa">
+        <div class="user_Overview_nums allnum">
+          <CountUp :endVal="state.totalEnergy" :duration="duration" :decimalPlaces="0" />
+        </div>
+        <p>总能耗 (kWh)</p>
+      </li>
+      <li class="user_Overview-item" style="color: #07f7a8">
+        <div class="user_Overview_nums online">
+          <CountUp :endVal="state.energySaving" :duration="duration" :decimalPlaces="1" />
+        </div>
+        <p>节能率 (%)</p>
+      </li>
+      <li class="user_Overview-item" style="color: #e3b337">
+        <div class="user_Overview_nums offline">
+          <CountUp :endVal="state.carbonReduction" :duration="duration" :decimalPlaces="1" />
+        </div>
+        <p>碳减排 (t)</p>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style scoped lang="scss">
-.left-top {
+.left-top-content {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 40px;
 }
 
 .user_Overview {
+  display: flex;
+  width: 100%;
+  
   li {
     flex: 1;
 
@@ -82,8 +113,8 @@ getData();
       height: 100px;
       text-align: center;
       line-height: 100px;
-      font-size: 22px;
-      margin: 50px auto 30px;
+      font-size: 18px;
+      margin: 20px auto 10px; // 调整间距以适应两排
       background-size: cover;
       background-position: center center;
       position: relative;

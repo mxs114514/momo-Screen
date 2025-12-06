@@ -8,8 +8,8 @@
           alt="系统图片"
           class="left-image"
         />
-        <h1 class="system-title">绿能管家-智慧云</h1>
-        <h1 class="system-title">环保能源与可再生资源软件</h1>
+        <h1 class="system-title">雪擎-IcePulse</h1>
+        <h1 class="system-title">基于多感知融合的冰雪园区能源可视化预测平台</h1>
       </div>
     </div>
 
@@ -111,6 +111,11 @@ const router = useRouter();
 const loading = ref(false);
 const loginFormRef = ref<FormInstance>();
 
+const DEMO_CREDENTIALS = Object.freeze({
+  username: "lngjzhy",
+  password: "hbnyykzszykshzhglpt",
+  companyCode: "20060604",
+});
 const loginForm = reactive({
   username: "",
   password: "",
@@ -133,9 +138,9 @@ const handleLogin = async () => {
       // 模拟登录验证
       setTimeout(() => {
         if (
-          loginForm.username === "123" &&
-          loginForm.password === "123" &&
-          loginForm.companyCode === "123"
+          loginForm.username === DEMO_CREDENTIALS.username &&
+          loginForm.password === DEMO_CREDENTIALS.password &&
+          loginForm.companyCode === DEMO_CREDENTIALS.companyCode
         ) {
           ElMessage.success("登录成功");
           // 存储登录状态
@@ -157,7 +162,7 @@ const handleLogin = async () => {
   width: 100vw;
   height: 100vh;
   display: flex;
-  background-image: url("@/assets/img/loginbg.png");
+  background-image: url("@/assets/img/loginBg.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

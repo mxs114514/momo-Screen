@@ -751,7 +751,7 @@ onMounted(() => {
   padding: 20px;
   box-sizing: border-box;
   gap: 24px;
-  background-image: url("@/assets/img/pageBg.png");
+  background-image: url("@/assets/img/pageBg6.jpg");
   background-size: cover;
   background-position: center center;
 }
